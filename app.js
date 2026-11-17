@@ -7,6 +7,7 @@ const root=document.getElementById("viewRoot"),modalRoot=document.getElementById
 const clone=x=>JSON.parse(JSON.stringify(x));
 const initial=()=>({mode:"demo",demo:{opportunities:clone(DEMO_OPPORTUNITIES),vendors:clone(DEMO_VENDORS),transactions:[],activity:[]},live:{opportunities:[],vendors:[],transactions:[],activity:[]},filters:{search:"",sector:"all",stage:"all",partnerSearch:""}});
 let state=load(),detailId=null,detailTab="overview",previousFocus=null;
+let publicFeed={status:"loading",retrievedAt:null,items:[]};
 function load(){try{const raw=localStorage.getItem(STORAGE_KEY);if(raw){const s=JSON.parse(raw);if(s&&["demo","live"].includes(s.mode)&&s.live&&s.demo&&Array.isArray(s.live.opportunities)&&Array.isArray(s.live.vendors)&&Array.isArray(s.live.transactions)){s.filters=s.filters||{search:"",sector:"all",stage:"all",partnerSearch:""};return s;}}}catch(err){console.warn("Storage unavailable",err);}return initial();}
 function save(){try{localStorage.setItem(STORAGE_KEY,JSON.stringify(state));}catch{toast("Browser storage is unavailable. Export a backup to keep your data.",true);}}
 function work(){return state[state.mode];}
@@ -50,7 +51,32 @@ function renderRows(rows,wide=true){if(!rows.length)return '<div class="empty-st
 function filtered(){const f=state.filters||{},q=(f.search||"").trim().toLowerCase();return opportunities().filter(d=>(!q||[d.title,d.buyer,d.description,d.source].some(s=>String(s||"").toLowerCase().includes(q)))&&(f.sector==="all"||!f.sector||d.sector===f.sector)&&(f.stage==="all"||!f.stage||d.stage===f.stage)).sort((a,b)=>scoreOpportunity(b,vendors())-scoreOpportunity(a,vendors()));}
 function renderHunt(){const f=state.filters||{};return header("DISCOVER / FILTER / PRIORITIZE","Opportunity hunt","One pipeline across digital services, government contracting and AI venture research.",btn("＋ Add opportunity","add-opp","","btn-primary")+btn("Export CSV","export-csv"))+demoNote()+
  '<div class="panel"><div class="panel-title"><h2>Intelligence inbox</h2>'+tag(opportunities().length+" RECORDS","muted")+'</div><div class="filters"><div class="search-box"><input class="input" id="huntSearch" type="search" placeholder="Search opportunities, buyers, descriptions…" value="'+esc(f.search||"")+'" aria-label="Search opportunities"></div><select class="select filter-select" id="sectorFilter" aria-label="Sector"><option value="all">All sectors</option>'+Object.entries(SECTORS).map(([k,v])=>'<option value="'+k+'" '+(f.sector===k?"selected":"")+'>'+v+'</option>').join("")+'</select><select class="select filter-select" id="stageFilter" aria-label="Stage"><option value="all">All stages</option>'+STAGES.map(s=>'<option value="'+s+'" '+(f.stage===s?"selected":"")+'>'+s.replaceAll("_"," ")+'</option>').join("")+'</select></div><div id="opportunityResults">'+renderRows(filtered())+'</div></div>'+
- '<p class="small" style="margin-top:15px">Every legitimate opportunity needs its own original source. Research scores do not certify authenticity or guarantee profit.</p>';}
+ '<p class="small" style="margin-top:15px">Every legitimate opportunity needs its own original source. Research scores do not certify authenticity or guarantee profit.</p>'+renderPublicFeed();}
+
+function renderPublicFeed(){
+ const feed=publicFeed,items=Array.isArray(feed.items)?feed.items.slice(0,15):[];
+ const synced=feed.status==="active"&&feed.retrievedAt;
+ const age=synced?(Date.now()-new Date(feed.retrievedAt).getTime())/3600000:null;
+ const stale=age===null||!Number.isFinite(age)||age>48;
+ const status=synced?(stale?"STALE PUBLIC RESEARCH":"PUBLIC RESEARCH FEED"):"NOT CONFIGURED";
+ return '<section class="panel" style="margin-top:19px"><div class="panel-title"><h2>Official federal opportunity scanner</h2>'+tag(status,stale?"amber":"")+'</div>'+
+ '<div class="notice" style="margin-bottom:14px">Read-only public notices, not verified clients, eligibility decisions, approved bids or calculated profit. Federal NAICS 541511/541512 pilot. API setup is required before new notices appear.</div>'+
+ (synced?'<p class="small">Retrieved '+esc(new Date(feed.retrievedAt).toLocaleString())+(stale?' · Out of date; recheck official SAM.gov source':'')+'.</p>':'<p class="small">No authenticated federal feed connected yet. This scanner can run from scheduled GitHub Actions after a SAM.gov key is configured as a repository secret. No fictional records appear here.</p>')+
+ (items.length?'<div class="table-scroll"><table class="data-table"><thead><tr><th>Federal notice</th><th>NAICS</th><th>Response deadline</th><th>Official notice</th><th></th></tr></thead><tbody>'+items.map(n=>'<tr><td><div class="item-title">'+esc(short(n.title,60))+'</div><div class="item-meta">'+esc(short(n.buyer,75))+'</div></td><td>'+esc(n.naics||"Unknown")+'</td><td>'+esc(dateFmt(n.deadline))+'</td><td><a class="text-link" href="'+esc(safeUrl(n.sourceUrl))+'" rel="noopener noreferrer" target="_blank">SAM.gov ↗</a></td><td>'+btn("Research","import-public-notice",n.id,"btn-sm btn-ghost")+'</td></tr>').join("")+'</tbody></table></div>':'<div class="empty-state">No live public notices available in the current feed. <a class="text-link" href="docs/PUBLIC-FEED.md" target="_blank" rel="noopener noreferrer">Read setup instructions ↗</a></div>')+
+ '<p class="small" style="margin:14px 0 0">No procurement proposal is submitted or supplier contacted. Imported notices enter your separate local LIVE workspace as unverified research leads.</p></section>';
+}
+async function loadPublicFeed(){
+ try{const response=await fetch("./data/public-feed.json",{cache:"no-store"});if(!response.ok)throw Error("Feed unavailable");const data=await response.json();if(data&&data.schema==="watchtower-public-v1"&&Array.isArray(data.items)){publicFeed={...data,items:data.items.filter(n=>n&&/^https:\/\/sam\.gov\/opp\//.test(String(n.sourceUrl||""))).slice(0,80)};}else{throw Error("Invalid feed schema");}}
+ catch(e){publicFeed={status:"unavailable",items:[]};}
+ if(view()==="hunt")render();
+}
+function importPublicNotice(id){
+ const notice=(publicFeed.items||[]).find(n=>n.id===id);if(!notice){toast("Public notice no longer available",true);return;}
+ if(!confirm("Copy this PUBLIC notice into your browser-local Live workspace as an UNVERIFIED research lead? Nothing will be submitted."))return;
+ const existing=state.live.opportunities.find(d=>d.publicNoticeId===id);if(existing){state.mode="live";save();setView("hunt");detail(existing.id);toast("This notice is already in your research workspace");return;}
+ const lead={id:uuid("op"),demo:false,publicNoticeId:id,title:String(notice.title||"").slice(0,180),buyer:String(notice.buyer||"").slice(0,160),sector:"government",source:"SAM.gov public feed",sourceUrl:safeUrl(notice.sourceUrl),deadline:String(notice.deadline||""),description:"Public procurement notice discovered through federal feed. Requirements, buyer, set-aside eligibility, scope and subcontracting must be independently checked. Published notice type: "+String(notice.noticeType||"Unknown"),skills:[],naicsCode:String(notice.naics||""),setAsideType:String(notice.setAside||""),verifiedSource:false,buyerVerified:false,quoteVerified:false,termsVerified:false,complianceChecked:false,governmentReview:false,price:"",vendorCost:"",otherCost:"",contingency:"",vendorUpfront:"",otherUpfront:"",clientDeposit:"",weeklyHours:"",cashPlan:[],stage:"NEW",decision:"research",createdAt:new Date().toISOString()};
+ state.live.opportunities.unshift(lead);state.mode="live";log("Copied UNVERIFIED federal notice into research: "+lead.title,lead.id);save();setView("hunt");detail(lead.id);toast("Federal notice imported for manual review. No claims of eligibility or price.");
+}
 function renderPartners(){const q=(state.filters?.partnerSearch||"").toLowerCase(),list=vendors().filter(v=>[v.name,v.city,...(v.skills||[])].some(s=>String(s||"").toLowerCase().includes(q)));return header("THE EXECUTION NETWORK","Partner bench","Build a qualified supplier network so you can own the opportunity without performing every task.",btn("＋ Add partner","add-vendor","","btn-primary"))+demoNote()+
  '<div class="notice" style="margin-bottom:20px">Partner listings are research candidates—not signed subcontractors. Certifications, capacity, rates, references and availability require independent confirmation. No outreach is sent by this app.</div>'+
  '<div class="filters"><div class="search-box"><input id="partnerSearch" type="search" class="input" value="'+esc(state.filters?.partnerSearch||"")+'" placeholder="Search partners and skills…" aria-label="Search vendors"></div></div>'+
@@ -159,6 +185,7 @@ async function importBackup(file){if(!file)return;if(file.size>1024*1024){toast(
 function handleAction(node){const action=node.dataset.action,id=node.dataset.id;
  switch(action){
  case"add-opp":opportunityForm();break;
+ case"import-public-notice":importPublicNotice(id);break;
  case"edit-opp":opportunityForm(id);break;
  case"open-opp":detail(id);break;
  case"detail-tab":detail(detailId,node.dataset.tab);break;
@@ -191,4 +218,4 @@ document.getElementById("mobileMenu").addEventListener("click",toggleNav);
 document.getElementById("mobileOverlay").addEventListener("click",closeNav);
 document.getElementById("exportTop").addEventListener("click",exportJSON);
 window.addEventListener("hashchange",render);
-render();
+render();\nloadPublicFeed();\n
