@@ -150,7 +150,7 @@ function handleAction(node){const action=node.dataset.action,id=node.dataset.id;
  case"add-transaction":transactionForm(id);break;
  case"approve-research":case"approve-draft":case"pass-opp":changeDecision(id,action);break;
  case"close-modal":closeModal();break;
- case"backdrop":if(node===event?.target)closeModal();break;
+ case"backdrop":closeModal();break;
  case"go-hunt":setView("hunt");break;
  case"go-settings":setView("settings");break;
  case"mode-demo":state.mode="demo";save();render();toast("Demo sandbox activated");break;
