@@ -218,4 +218,5 @@ document.getElementById("mobileMenu").addEventListener("click",toggleNav);
 document.getElementById("mobileOverlay").addEventListener("click",closeNav);
 document.getElementById("exportTop").addEventListener("click",exportJSON);
 window.addEventListener("hashchange",render);
-render();\nloadPublicFeed();\n
+render();
+loadPublicFeed();
