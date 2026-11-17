@@ -51,7 +51,7 @@ Move opportunity and vendor records to a private database (Supabase/Postgres), a
 
 **Status: working browser prototype, not a deployed production intelligence backend.**
 
-## Release 0.2: audit-driven improvements
+## Release 0.2: evidence and risk-control improvements
 
 - Material cost and reserve inputs must be explicitly supplied (zero is only accepted if deliberately entered).
 - Source, buyer, supplier quote and compliance evidence notes are required for the proposal-draft screening gate.
@@ -67,3 +67,15 @@ Move opportunity and vendor records to a private database (Supabase/Postgres), a
 - [Transferable asset inventory & ownership gaps](docs/ASSET_REGISTER.md)
 
 **Important:** This is a public source repository, not a protected trade-secret vault. Any potential asset purchase or license requires verified IP ownership, third-party rights review, and evidence of actual business outcomes. No sale value is claimed.
+
+## First 90 days: prove a business, not a demo
+
+The next milestone is a controlled, measured comparison of **two revenue tracks**: (A) selectively outsourced digital projects, and (B) fixed-fee, source-backed opportunity research services. No income, customer retention, or market valuation is claimed.
+
+- [90-day operating plan](docs/90_DAY_OPERATING_PLAN.md) — dated milestones, first research tests, stop/go gates.
+- [Two revenue tracks](docs/TWO_REVENUE_TRACKS.md) — what customers actually buy, assumptions, risks.
+- [Metrics and decision rules](docs/METRICS_AND_DECISION_RULES.md) — owner time, funnel, contribution, cash liabilities.
+- [Valuation and buyer readiness](docs/VALUATION_AND_BUYER_READINESS.md) — distinguish replacement cost, asset price and recurring-business value.
+- [Public/private data boundary](docs/PRIVATE_DATA_BOUNDARY.md) — no confidential quotes, credentials, client data, or proprietary work in the public site.
+
+**Known open risks:** the current aggregate-exposure logic is based on deal stages rather than an actual commitments ledger; the monthly contribution ledger should be reconciled for unpaid expenses and refund obligations. These limitations are documented, not assumed resolved.

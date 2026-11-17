@@ -125,3 +125,25 @@ A potential buyer should receive:
 Not UI metrics, simulated contract values, or model-generated opportunity scores. Success means repeatable paid contribution with defensible source evidence, manageable cash exposure, independently qualified delivery partners and documented founder time. Commercial sale readiness adds transferable rights, clean data provenance and a buyer-ready operating package.
 
 See [Commercialization Strategy](COMMERCIALIZATION.md), [Asset Register](ASSET_REGISTER.md), [Source Adapter Setup](PUBLIC-FEED.md), [Product Charter](PRODUCT.md), and [Workflow](WORKFLOW.md).
+
+## Priority addendum — operating proof before optional platform expansion (November 17, 2026)
+
+**P0 — Measure reality**
+- [ ] Run the [90-day operating plan](90_DAY_OPERATING_PLAN.md) across two controlled revenue tests.
+- [ ] Track actual founder hours separately from platform-development time; implement in-product time-entry support only after the schema is clear.
+- [ ] Maintain a private evidence ledger and signed/dated supplier quote metadata, not public customer files.
+- [ ] Track qualified lead %, vendor response rate, signed wins, cash collection, refunds, direct costs and actual contribution per founder hour.
+- [ ] Complete a five-item weekly decision brief; archive reasons for rejecting opportunities.
+
+**P0 — Finance and governance**
+- [ ] Replace stage-based aggregate risk with a **commitments and obligations ledger**; capture release/settlement evidence for each outstanding exposure.
+- [ ] Add downside scenarios for late client payment, refundable deposits, unpaid vendor invoices and scope change.
+- [ ] Treat stale SAM.gov feeds, missing source verification dates and unknown material costs as explicit blockers.
+
+**P1 — Commercial optionality**
+- [ ] Test whether a bounded fixed-fee opportunity research briefing has paying demand. Do not build multi-tenant billing before a paid pilot.
+- [ ] Preserve the public demonstration while moving truly proprietary logic, customer documents and sensitive partner records to private infrastructure.
+- [ ] Record IP assignment, external licenses and reproducible release evidence before entering commercial discussions.
+- [ ] Evaluate future acquisition prices using [valuation methodology](VALUATION_AND_BUYER_READINESS.md) **only when comparable transactions or actual offers support them**.
+
+**Prioritization rule:** if actual business proof is weak, stop adding agents/UI features and revise the offer. If measured demand and margins are strong, build the minimum protected infrastructure required to deliver it repeatably.
