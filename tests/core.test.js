@@ -1,0 +1,16 @@
+import test from "node:test";
+import assert from "node:assert/strict";
+import {computeFinance,evaluateGates,scoreOpportunity,matchVendors,realizedContribution,activePortfolioExposure,safeUrl,escapeHtml} from "../core.js";
+const base={id:"o1",sector:"digital",sourceUrl:"https://example.org/rfp",verifiedSource:true,buyerVerified:true,price:5000,vendorCost:3000,otherCost:250,contingency:500,vendorUpfront:300,otherUpfront:100,clientDeposit:2500,weeklyHours:1,vendorId:"v1",quoteVerified:true,termsVerified:true,complianceChecked:true};
+const vendor={id:"v1",name:"Verified partner",skills:["automation"],estimatedCost:3000,verified:true,availability:"available",referencesChecked:true,communicationChecked:true};
+test("finance calculates contribution and does not offset refundable client deposits",()=>{const x=computeFinance(base);assert.equal(x.contribution,1250);assert.equal(x.margin,25);assert.equal(x.exposure,900);});
+test("all gates can pass for a fully reviewed private deal",()=>assert.equal(evaluateGates(base,[vendor]).passed,true));
+test("demo opportunities can never pass approval gate",()=>assert.equal(evaluateGates({...base,demo:true},[vendor]).passed,false));
+test("portfolio cash cap blocks another concurrent deal",()=>assert.equal(evaluateGates(base,[vendor],300).passed,false));
+test("public procurement requires deal-specific review",()=>assert.equal(evaluateGates({...base,sector:"government"},[vendor]).passed,false));
+test("low margin or unknown quote blocks approval",()=>{assert.equal(evaluateGates({...base,price:4500},[vendor]).passed,false);assert.equal(evaluateGates({...base,vendorCost:""},[vendor]).passed,false);});
+test("skill matching is conservative for unverified suppliers",()=>{const x=matchVendors({skills:["automation"]},[{...vendor,id:"unverified",verified:false,referencesChecked:false,communicationChecked:false},vendor]);assert.equal(x[0].id,"v1");assert.ok(x[0].matchScore>x[1].matchScore);});
+test("scores cap at 100 and penalize demo sources",()=>{assert.ok(scoreOpportunity(base,[vendor])<=100);assert.ok(scoreOpportunity({...base,demo:true},[vendor])<scoreOpportunity(base,[vendor]));});
+test("realized is based on receipts less actual expenses",()=>assert.equal(realizedContribution([{type:"receipt",amount:1000},{type:"expense",amount:350},{type:"forecast",amount:10000}]),650));
+test("active portfolio exposure ignores research and excluded opportunity",()=>{const arr=[{...base,stage:"WON"},{...base,id:"o2",stage:"NEW"}];assert.equal(activePortfolioExposure(arr),900);assert.equal(activePortfolioExposure(arr,"o1"),0);});
+test("unsafe URLs rejected and markup escaped",()=>{assert.equal(safeUrl("javascript:alert(1)"),"");assert.ok(escapeHtml("<img>").includes("&lt;img&gt;"));});
