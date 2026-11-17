@@ -1,0 +1,50 @@
+name: Public opportunity hunt (opt-in)
+on:
+  schedule:
+    - cron: '37 12 * * 1-5'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  hunt-and-deploy:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Python syntax check
+        run: python3 -m py_compile scripts/collect_sam.py
+      - name: Collect authorized federal notices
+        env:
+          SAM_API_KEY: ${{ secrets.SAM_API_KEY }}
+        run: python3 scripts/collect_sam.py
+      - name: Commit sanitized PUBLIC feed (if updated)
+        run: |
+          git config user.name "watchtower-data-bot"
+          git config user.email "watchtower-data-bot@users.noreply.github.com"
+          git add data/public-feed.json
+          if ! git diff --cached --quiet; then
+            git commit -m "data: refresh sanitized public SAM.gov research feed [skip ci]"
+            git push origin HEAD:main
+          else
+            echo "No new public data to commit"
+          fi
+      - name: Configure Pages
+        uses: actions/configure-pages@v5
+      - name: Upload site with updated public feed
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: .
+      - name: Deploy Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

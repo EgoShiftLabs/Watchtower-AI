@@ -1,0 +1,8 @@
+{
+  "schema": "watchtower-public-v1",
+  "status": "not_configured",
+  "retrievedAt": null,
+  "source": "SAM.gov Public Opportunities API",
+  "items": [],
+  "notice": "No live feed is connected. Configure SAM_API_KEY as a GitHub Actions secret and run the scheduled source collector. Public notices still require independent verification."
+}
