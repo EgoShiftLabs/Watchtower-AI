@@ -50,3 +50,20 @@ The repository ships a GitHub Actions deployment workflow. If the Pages URL is n
 Move opportunity and vendor records to a private database (Supabase/Postgres), add secure identity and row-level authorization, server-side source adapters, secrets and rate limits, a human-reviewed research pipeline, and audited approvals. Never put a SAM.gov API key or any credential in frontend JavaScript.
 
 **Status: working browser prototype, not a deployed production intelligence backend.**
+
+## Release 0.2: audit-driven improvements
+
+- Material cost and reserve inputs must be explicitly supplied (zero is only accepted if deliberately entered).
+- Source, buyer, supplier quote and compliance evidence notes are required for the proposal-draft screening gate.
+- Deal cash-flow forecast waterfall is scenario-only and **does not net proposed client deposits from risk**.
+- Decision desk exports a five-item Markdown briefing for manual review.
+- Optional [public SAM.gov source collector](docs/PUBLIC-FEED.md) is committed but **not enabled until the owner configures a GitHub Actions API secret**. Public notices are imported only as **unverified** leads.
+
+### Business / sale preparation
+
+- [Buyer-friendly one-page description](docs/ONE_PAGER.md)
+- [Detailed product + commercial exit roadmap](docs/ROADMAP.md)
+- [Commercialization and licensing options](docs/COMMERCIALIZATION.md)
+- [Transferable asset inventory & ownership gaps](docs/ASSET_REGISTER.md)
+
+**Important:** This is a public source repository, not a protected trade-secret vault. Any potential asset purchase or license requires verified IP ownership, third-party rights review, and evidence of actual business outcomes. No sale value is claimed.
