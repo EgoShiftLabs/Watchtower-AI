@@ -26,6 +26,11 @@ jobs:
           node --check seed.js
       - name: Core business-rules tests
         run: npm test
+      - name: Public-feed Python collector regression checks
+        run: |
+          python3 -m py_compile scripts/collect_sam.py
+          python3 -m unittest discover -s tests -p "test_*.py"
+          python3 -m json.tool data/public-feed.json >/dev/null
       - name: Verify static assets exist
         run: |
           test -f index.html
