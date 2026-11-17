@@ -1,0 +1,45 @@
+{
+  "product": "Watchtower AI",
+  "version": "0.1-pages-prototype",
+  "owner": "MLive Digital Solutions LLC",
+  "mode": "browser-only-static",
+  "owner_policy": {
+    "max_cash_exposure_deal": 1000,
+    "max_cash_exposure_portfolio": 1000,
+    "target_monthly_realized_contribution": 2500,
+    "max_owner_hours_week": 2,
+    "minimum_forecast_margin_percent": 25,
+    "weekly_decision_limit": 5
+  },
+  "sector_weights": {
+    "digital": 0.6,
+    "government": 0.25,
+    "ai": 0.15
+  },
+  "scoring": {
+    "demand": 25,
+    "margin": 20,
+    "cashflow": 20,
+    "vendor": 15,
+    "ownerTime": 10,
+    "evidence": 10
+  },
+  "approval_required": [
+    "outreach",
+    "proposal_submission",
+    "contracts",
+    "vendor_hiring",
+    "payments",
+    "venture_spend"
+  ],
+  "source_types": [
+    "SAM.gov",
+    "Detroit procurement",
+    "Michigan SIGMA",
+    "Private RFP",
+    "Direct lead",
+    "USAspending history",
+    "Research hypothesis"
+  ],
+  "server_apis_connected": false
+}
